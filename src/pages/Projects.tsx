@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { 
   Plus, 
   Search, 
@@ -12,7 +13,9 @@ import {
   ExternalLink,
   Clock,
   Package,
-  ArrowRightLeft
+  ArrowRightLeft,
+  CheckCircle,
+  Eye
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -44,13 +47,14 @@ import {
 import { useConstruction, ProjectWithUsage } from '@/src/context/ConstructionContext';
 
 export default function ProjectsPage() {
-  const { projects, stock, addMaterialToProject, addProject, updateProject, deleteProject } = useConstruction();
+  const { projects, stock, addMaterialToProject, addProject, updateProject, deleteProject, markProjectCompleted } = useConstruction();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProject, setSelectedProject] = useState<ProjectWithUsage | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
   
   const [assignment, setAssignment] = useState({
@@ -145,7 +149,12 @@ export default function ProjectsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Projects Management</h1>
+          <motion.h1 
+            whileHover={{ scale: 1.02, x: 5 }}
+            className="text-3xl font-bold tracking-tight animate-text-glow cursor-default"
+          >
+            Projects Management
+          </motion.h1>
           <p className="text-muted-foreground">Manage and track all ongoing construction sites.</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -280,195 +289,236 @@ export default function ProjectsPage() {
             <CardHeader className="pb-2">
               <div className="flex items-start justify-between">
                 <div>
-                  <CardTitle className="text-xl">{project.name}</CardTitle>
+                  <motion.div whileHover={{ x: 3 }}>
+                    <CardTitle className="text-xl animate-word-hover">{project.name}</CardTitle>
+                  </motion.div>
                   <CardDescription className="flex items-center gap-1 mt-1">
                     <MapPin className="w-3 h-3" /> {project.location}
                   </CardDescription>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100 rounded-full transition-colors" />}>
-                    <MoreVertical className="h-4 w-4 text-slate-500" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-40 bg-white border-slate-200 shadow-2xl rounded-xl p-1.5 z-50">
-                    <DropdownMenuItem 
-                      className="flex items-center gap-2 px-3 py-2 cursor-pointer rounded-lg hover:bg-slate-50 focus:bg-slate-50 transition-colors text-sm font-medium text-slate-700"
-                      onSelect={() => {
-                        setEditingProject(project);
-                        setIsEditDialogOpen(true);
-                      }}
-                    >
-                      <Edit2 className="w-4 h-4" /> Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      className="flex items-center gap-2 px-3 py-2 cursor-pointer rounded-lg text-destructive hover:bg-destructive/5 focus:bg-destructive/5 transition-colors text-sm font-bold"
-                      onSelect={() => {
-                        setProjectToDelete(project.id);
-                        setIsDeleteDialogOpen(true);
-                      }}
-                    >
-                      <Trash2 className="w-4 h-4" /> Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100 rounded-full transition-colors flex mt-1" />}>
+                      <MoreVertical className="h-4 w-4 text-slate-500" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56 bg-white border-slate-200 shadow-xl rounded-xl p-1.5 z-[200]">
+                      <DropdownMenuItem 
+                        className="flex items-center gap-2 px-3 py-2 cursor-pointer rounded-lg hover:bg-slate-50 focus:bg-slate-50 transition-colors text-sm font-medium text-slate-700"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingProject(project);
+                          setIsEditDialogOpen(true);
+                        }}
+                      >
+                        <Edit2 className="w-4 h-4 text-slate-500" /> Edit Project
+                      </DropdownMenuItem>
+                      
+                      {project.status === 'Ongoing' && (
+                        <DropdownMenuItem 
+                          className="flex items-center gap-2 px-3 py-2 cursor-pointer rounded-lg hover:bg-green-50 focus:bg-green-50 transition-colors text-sm font-medium text-green-700"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            markProjectCompleted(project.id);
+                          }}
+                        >
+                          <CheckCircle className="w-4 h-4 text-green-600" /> Mark as Completed
+                        </DropdownMenuItem>
+                      )}
+
+                      <DropdownMenuItem 
+                        className="flex items-center gap-2 px-3 py-2 cursor-pointer rounded-lg hover:bg-slate-50 focus:bg-slate-50 transition-colors text-sm font-medium text-slate-700"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedProject(project);
+                          setIsDetailsDialogOpen(true);
+                        }}
+                      >
+                        <Eye className="w-4 h-4 text-slate-500" /> View Details
+                      </DropdownMenuItem>
+
+                      <div className="h-px bg-slate-100 my-1" />
+
+                      <DropdownMenuItem 
+                        className="flex items-center gap-2 px-3 py-2 cursor-pointer rounded-lg text-destructive hover:bg-destructive/10 focus:bg-destructive/10 transition-colors text-sm font-bold"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setProjectToDelete(project.id);
+                          setIsDeleteDialogOpen(true);
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4" /> Delete Project
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
               </div>
             </CardHeader>
             <CardContent className="space-y-4 pb-4">
               <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
                 <div className="space-y-1">
                   <p className="text-muted-foreground flex items-center gap-1"><Layers className="w-3 h-3" /> Team Leader</p>
-                  <p className="font-medium">{project.teamLeader || 'Not Assigned'}</p>
+                  <motion.p whileHover={{ x: 2 }} className="font-medium text-primary/90">{project.teamLeader || 'Not Assigned'}</motion.p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-muted-foreground flex items-center gap-1"><Users className="w-3 h-3" /> Labours</p>
-                  <p className="font-medium">{project.laboursCount} Workers</p>
+                  <motion.p whileHover={{ x: 2 }} className="font-medium">{project.laboursCount} Workers</motion.p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-muted-foreground flex items-center gap-1"><Clock className="w-3 h-3" /> Project Status</p>
-                  <p className="font-medium truncate max-w-[120px]">{project.currentStage}</p>
+                  <motion.p whileHover={{ x: 2 }} className="font-medium truncate max-w-[120px]">{project.currentStage}</motion.p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-muted-foreground flex items-center gap-1"><Package className="w-3 h-3" /> Materials</p>
-                  <p className="font-medium truncate max-w-[120px]">
+                  <motion.p whileHover={{ x: 2 }} className="font-medium truncate max-w-[120px]">
                     {project.materialsUsed && project.materialsUsed.length > 0 
                       ? project.materialsUsed.map(m => m.name).join(', ') 
                       : 'None'}
-                  </p>
+                  </motion.p>
                 </div>
               </div>
             </CardContent>
             <CardFooter className="pt-0">
-              <Dialog>
-                <DialogTrigger render={<Button variant="outline" className="w-full" onClick={() => setSelectedProject(project)} />}>
-                  View Details <ExternalLink className="w-3 h-3 ml-2" />
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl bg-white border-none shadow-2xl overflow-y-auto max-h-[90vh]">
-                  <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold text-slate-900">{selectedProject?.name}</DialogTitle>
-                    <DialogDescription className="text-slate-500">Detailed project overview and current status.</DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-8 py-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Site Number</p>
-                        <p className="text-lg font-bold text-slate-900">{selectedProject?.siteNumber}</p>
-                      </div>
-                      <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Project Status</p>
-                        <p className="text-lg font-bold text-slate-900">{selectedProject?.currentStage}</p>
-                      </div>
-                      <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Team Leader</p>
-                        <p className="text-lg font-bold text-slate-900">{selectedProject?.teamLeader || 'Not Assigned'}</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="p-4 bg-slate-100/50 rounded-xl border border-slate-100">
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">No. of Labours Assigned</p>
-                        <div className="flex items-center gap-2">
-                          <Users className="w-5 h-5 text-primary" />
-                          <span className="text-2xl font-black text-slate-900">{selectedProject?.laboursCount}</span>
-                          <span className="text-slate-500 font-medium">Workers on site</span>
-                        </div>
-                      </div>
-                      <div className="p-4 bg-slate-100/50 rounded-xl border border-slate-100">
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Overall Status</p>
-                        <Badge variant={selectedProject?.status === 'Ongoing' ? 'secondary' : 'outline'} className="text-sm px-3 py-1">
-                          {selectedProject?.status}
-                        </Badge>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                          <Package className="w-4 h-4 text-primary" /> Materials Used
-                        </p>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          className="h-8 text-xs font-bold border-primary text-primary hover:bg-primary/5"
-                          onClick={() => setIsAssignDialogOpen(true)}
-                        >
-                          <Plus className="w-3 h-3 mr-1" /> Assign Material
-                        </Button>
-                      </div>
-
-                      <div className="bg-slate-50 rounded-xl border border-slate-100 overflow-hidden">
-                        {selectedProject?.materialsUsed && selectedProject.materialsUsed.length > 0 ? (
-                          <div className="divide-y divide-slate-100">
-                            {selectedProject.materialsUsed.map((m, idx) => (
-                              <div key={idx} className="p-3 flex items-center justify-between text-sm">
-                                <span className="font-semibold text-slate-700">{m.name}</span>
-                                <Badge variant="secondary" className="bg-white text-slate-900 border-slate-200">
-                                  {m.quantity} {m.unit}
-                                </Badge>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="p-8 text-center text-slate-400 text-sm">
-                            No materials assigned yet.
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <p className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                        <Users className="w-4 h-4 text-primary" /> Staff Assigned
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {selectedProject?.assignedStaff.map(staff => (
-                          <Badge key={staff} variant="outline" className="bg-white border-slate-200 text-slate-600 px-3 py-1">
-                            {staff}
-                          </Badge>
-                        ))}
-                        {(!selectedProject?.assignedStaff || selectedProject.assignedStaff.length === 0) && (
-                          <span className="text-sm text-slate-400">No staff assigned yet.</span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <p className="text-sm font-bold text-slate-900">Site Images</p>
-                      <div className="grid grid-cols-3 gap-3">
-                        {[1, 2, 3].map(i => (
-                          <div key={i} className="aspect-video bg-slate-100 rounded-xl overflow-hidden border border-slate-200">
-                            <img 
-                              src={`https://picsum.photos/seed/site-${selectedProject?.id}-${i}/200/120`} 
-                              alt="Site"
-                              className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-                              referrerPolicy="no-referrer"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <DialogFooter className="gap-2">
-                    <Button 
-                      variant="outline" 
-                      className="border-slate-200 text-slate-600"
-                      onClick={() => {
-                        if (selectedProject) {
-                          setEditingProject(selectedProject);
-                          setIsEditDialogOpen(true);
-                        }
-                      }}
-                    >
-                      Edit Project
-                    </Button>
-                    <DialogClose render={<Button className="bg-slate-900 text-white hover:bg-slate-800" />}>
-                      Close Details
-                    </DialogClose>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+              <Button 
+                variant="outline" 
+                className="w-full" 
+                onClick={() => {
+                  setSelectedProject(project);
+                  setIsDetailsDialogOpen(true);
+                }}
+              >
+                View Details <ExternalLink className="w-3 h-3 ml-2" />
+              </Button>
             </CardFooter>
           </Card>
         ))}
       </div>
+
+      <Dialog open={isDetailsDialogOpen} onOpenChange={(open) => {
+        setIsDetailsDialogOpen(open);
+        if (!open) setSelectedProject(null);
+      }}>
+        <DialogContent className="max-w-2xl bg-white border-none shadow-2xl overflow-y-auto max-h-[90vh] z-[110]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-slate-900">{selectedProject?.name}</DialogTitle>
+            <DialogDescription className="text-slate-500">Detailed project overview and current status.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-8 py-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Site Number</p>
+                <p className="text-lg font-bold text-slate-900">{selectedProject?.siteNumber}</p>
+              </div>
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Project Status</p>
+                <p className="text-lg font-bold text-slate-900">{selectedProject?.currentStage}</p>
+              </div>
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Team Leader</p>
+                <p className="text-lg font-bold text-slate-900">{selectedProject?.teamLeader || 'Not Assigned'}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="p-4 bg-slate-100/50 rounded-xl border border-slate-100">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">No. of Labours Assigned</p>
+                <div className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-primary" />
+                  <span className="text-2xl font-black text-slate-900">{selectedProject?.laboursCount}</span>
+                  <span className="text-slate-500 font-medium">Workers on site</span>
+                </div>
+              </div>
+              <div className="p-4 bg-slate-100/50 rounded-xl border border-slate-100">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Overall Status</p>
+                <Badge variant={selectedProject?.status === 'Ongoing' ? 'secondary' : 'outline'} className="text-sm px-3 py-1">
+                  {selectedProject?.status}
+                </Badge>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                  <Package className="w-4 h-4 text-primary" /> Materials Used
+                </p>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="h-8 text-xs font-bold border-primary text-primary hover:bg-primary/5"
+                  onClick={() => setIsAssignDialogOpen(true)}
+                >
+                  <Plus className="w-3 h-3 mr-1" /> Assign Material
+                </Button>
+              </div>
+
+              <div className="bg-slate-50 rounded-xl border border-slate-100 overflow-hidden">
+                {selectedProject?.materialsUsed && selectedProject.materialsUsed.length > 0 ? (
+                  <div className="divide-y divide-slate-100">
+                    {selectedProject.materialsUsed.map((m, idx) => (
+                      <div key={idx} className="p-3 flex items-center justify-between text-sm">
+                        <span className="font-semibold text-slate-700">{m.name}</span>
+                        <Badge variant="secondary" className="bg-white text-slate-900 border-slate-200">
+                          {m.quantity} {m.unit}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-8 text-center text-slate-400 text-sm">
+                    No materials assigned yet.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <Users className="w-4 h-4 text-primary" /> Staff Assigned
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {selectedProject?.assignedStaff.map(staff => (
+                  <Badge key={staff} variant="outline" className="bg-white border-slate-200 text-slate-600 px-3 py-1">
+                    {staff}
+                  </Badge>
+                ))}
+                {(!selectedProject?.assignedStaff || selectedProject.assignedStaff.length === 0) && (
+                  <span className="text-sm text-slate-400">No staff assigned yet.</span>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <p className="text-sm font-bold text-slate-900">Site Images</p>
+              <div className="grid grid-cols-3 gap-3">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="aspect-video bg-slate-100 rounded-xl overflow-hidden border border-slate-200">
+                    <img 
+                      src={`https://picsum.photos/seed/site-${selectedProject?.id}-${i}/200/120`} 
+                      alt="Site"
+                      className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button 
+              variant="outline" 
+              className="border-slate-200 text-slate-600"
+              onClick={() => {
+                if (selectedProject) {
+                  setEditingProject(selectedProject);
+                  setIsEditDialogOpen(true);
+                }
+              }}
+            >
+              Edit Project
+            </Button>
+            <DialogClose render={<Button className="bg-slate-900 text-white hover:bg-slate-800" onClick={() => setIsDetailsDialogOpen(false)} />}>
+              Close Details
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="bg-white border-none shadow-2xl max-w-[500px]">

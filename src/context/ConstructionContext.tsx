@@ -19,7 +19,10 @@ interface ConstructionContextType {
   updateProject: (project: ProjectWithUsage) => void;
   addProject: (project: ProjectWithUsage) => void;
   deleteProject: (projectId: string) => void;
+  markProjectCompleted: (projectId: string) => void;
   updateStock: (item: StockItem) => void;
+  addStock: (item: StockItem) => void;
+  deleteStock: (stockId: string) => void;
 }
 
 const ConstructionContext = createContext<ConstructionContextType | undefined>(undefined);
@@ -103,8 +106,20 @@ export function ConstructionProvider({ children }: { children: React.ReactNode }
     setProjects(prev => prev.filter(p => p.id !== projectId));
   };
 
+  const markProjectCompleted = (projectId: string) => {
+    setProjects(prev => prev.map(p => p.id === projectId ? { ...p, status: 'Completed', currentStage: 'Project Finished' } : p));
+  };
+
   const updateStock = (updatedItem: StockItem) => {
     setStock(prev => prev.map(s => s.id === updatedItem.id ? updatedItem : s));
+  };
+
+  const addStock = (newItem: StockItem) => {
+    setStock(prev => [...prev, newItem]);
+  };
+
+  const deleteStock = (stockId: string) => {
+    setStock(prev => prev.filter(s => s.id !== stockId));
   };
 
   return (
@@ -115,7 +130,10 @@ export function ConstructionProvider({ children }: { children: React.ReactNode }
       updateProject, 
       addProject,
       deleteProject,
-      updateStock
+      markProjectCompleted,
+      updateStock,
+      addStock,
+      deleteStock
     }}>
       {children}
     </ConstructionContext.Provider>

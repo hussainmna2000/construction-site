@@ -57,6 +57,12 @@ export default function App() {
                   <SettingsPage />
                 </RoleProtectedRoute>
               } />
+              <Route path="manage-profile" element={
+                <RoleProtectedRoute allowedRoles={['MD', 'Staff']}>
+                  <SettingsPage />
+                </RoleProtectedRoute>
+              } />
+              <Route path="switch-user" element={<LoginPage />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

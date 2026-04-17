@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { 
   LayoutDashboard, 
   HardHat, 
@@ -55,11 +56,28 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
       <div className="flex items-center justify-between p-6 h-[72px] border-b border-border">
         {!collapsed && (
           <div className="flex items-center gap-3 font-bold text-lg tracking-tight">
-            <div className="w-8 h-8 bg-primary rounded flex items-center justify-center text-background font-black">M</div>
-            <span>MNA SMART</span>
+            <motion.div 
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              className="w-8 h-8 bg-primary rounded flex items-center justify-center text-background font-black"
+            >
+              M
+            </motion.div>
+            <motion.span
+              whileHover={{ letterSpacing: "0.1em" }}
+              className="animate-text-glow cursor-default"
+            >
+              MNA SMART
+            </motion.span>
           </div>
         )}
-        {collapsed && <div className="w-8 h-8 bg-primary rounded flex items-center justify-center text-background font-black mx-auto">M</div>}
+        {collapsed && (
+          <motion.div 
+            whileHover={{ scale: 1.1, rotate: -5 }}
+            className="w-8 h-8 bg-primary rounded flex items-center justify-center text-background font-black mx-auto"
+          >
+            M
+          </motion.div>
+        )}
         <Button 
           variant="ghost" 
           size="icon" 
@@ -77,7 +95,7 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
               key={item.path}
               to={item.path}
               className={({ isActive }) => cn(
-                "flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-sm",
+                "flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-sm group",
                 isActive 
                   ? "bg-primary/10 text-primary font-semibold" 
                   : "text-muted-foreground hover:bg-muted/10 hover:text-foreground"
@@ -85,8 +103,15 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             >
               {({ isActive }) => (
                 <>
-                  <item.icon className={cn("w-[18px] h-[18px] flex-shrink-0", isActive ? "opacity-100" : "opacity-70")} />
-                  {!collapsed && <span>{item.label}</span>}
+                  <item.icon className={cn("w-[18px] h-[18px] flex-shrink-0 transition-transform group-hover:scale-110", isActive ? "opacity-100" : "opacity-70")} />
+                  {!collapsed && (
+                    <motion.span 
+                      whileHover={{ x: 5 }}
+                      className="origin-left"
+                    >
+                      {item.label}
+                    </motion.span>
+                  )}
                 </>
               )}
             </NavLink>
@@ -98,13 +123,15 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
         <Button 
           variant="ghost" 
           className={cn(
-            "w-full flex items-center gap-3 text-muted-foreground hover:bg-muted/10 hover:text-foreground justify-start px-4 py-3 h-auto",
+            "w-full flex items-center gap-3 text-muted-foreground hover:bg-muted/10 hover:text-foreground justify-start px-4 py-3 h-auto group",
             collapsed && "justify-center px-0"
           )}
           onClick={handleLogout}
         >
-          <LogOut className="w-[18px] h-[18px] flex-shrink-0 opacity-70" />
-          {!collapsed && <span>Logout</span>}
+          <LogOut className="w-[18px] h-[18px] flex-shrink-0 opacity-70 group-hover:scale-110 transition-transform" />
+          {!collapsed && (
+            <motion.span whileHover={{ x: 5 }}>Logout</motion.span>
+          )}
         </Button>
       </div>
     </div>

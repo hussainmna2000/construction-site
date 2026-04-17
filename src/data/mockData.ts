@@ -40,9 +40,13 @@ export interface Material {
 export interface StockItem {
   id: string;
   name: string;
+  supplierName: string;
   total: number;
   used: number;
   minLevel: number;
+  arrivalDate: string;
+  details: string;
+  status?: string;
 }
 
 export interface SalaryRecord {
@@ -113,9 +117,36 @@ export const MATERIALS: Material[] = [
 ];
 
 export const STOCK: StockItem[] = [
-  { id: 'S001', name: 'Cement', total: 1000, used: 350, minLevel: 200 },
-  { id: 'S002', name: 'Steel Rods', total: 5000, used: 1200, minLevel: 1000 },
-  { id: 'S003', name: 'Sand', total: 500, used: 450, minLevel: 100 },
+  { 
+    id: 'S001', 
+    name: 'Cement', 
+    supplierName: 'UltraTech',
+    total: 1000, 
+    used: 350, 
+    minLevel: 200,
+    arrivalDate: '2026-03-12',
+    details: 'Batch: B-102\nTruck: TN-09-AB-1234'
+  },
+  { 
+    id: 'S002', 
+    name: 'Steel Rods', 
+    supplierName: 'TATA Steel',
+    total: 5000, 
+    used: 1200, 
+    minLevel: 1000,
+    arrivalDate: '2026-03-15',
+    details: 'Grade: FE-500D'
+  },
+  { 
+    id: 'S003', 
+    name: 'Sand', 
+    supplierName: 'Local Quarry',
+    total: 500, 
+    used: 450, 
+    minLevel: 100,
+    arrivalDate: '2026-03-10',
+    details: 'Fine quality'
+  },
 ];
 
 export const SALARIES: SalaryRecord[] = [

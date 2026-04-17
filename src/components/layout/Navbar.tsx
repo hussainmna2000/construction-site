@@ -27,6 +27,22 @@ export function Navbar() {
   const navigate = useNavigate();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
+  // Load company data from localStorage
+  const [companyProfile] = useState(() => {
+    const saved = localStorage.getItem('companyProfile');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return null;
+      }
+    }
+    return {
+      name: 'MNA SMART Solutions Pvt Ltd',
+      description: 'Building quality homes since 2010'
+    };
+  });
+
   return (
     <header className="h-[72px] border-b border-slate-200 bg-white flex items-center justify-between px-8 sticky top-0 z-10 shadow-sm">
       <div className="flex items-center flex-1 max-w-md">
@@ -40,49 +56,69 @@ export function Navbar() {
         </Button>
 
         <DropdownMenu>
-          <DropdownMenuTrigger 
-            render={
-              <button className="flex items-center gap-3 pl-2 pr-1 hover:bg-slate-50 rounded-full transition-all group outline-none cursor-pointer border-none bg-transparent">
-                <div className="text-right hidden sm:block">
-                  <p className="text-sm font-bold text-slate-900 leading-none group-hover:text-primary transition-colors">{user?.name}</p>
-                  <div className="mt-1">
-                    <span className="text-[9px] uppercase font-black tracking-widest bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md border border-slate-200">
-                      {user?.role === 'MD' ? 'Managing Director' : 'Staff Member'}
-                    </span>
-                  </div>
+          <DropdownMenuTrigger asChild>
+            <button className="flex items-center gap-3 pl-2 pr-1 hover:bg-slate-50 rounded-full transition-all group outline-none cursor-pointer border-none bg-transparent">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-bold text-slate-900 leading-none group-hover:text-primary transition-colors">{user?.name}</p>
+                <div className="mt-1">
+                  <span className="text-[9px] uppercase font-black tracking-widest bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md border border-slate-200">
+                    {user?.role === 'MD' ? 'Managing Director' : 'Staff Member'}
+                  </span>
                 </div>
-                <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center text-slate-900 font-black text-2xl shadow-md border-2 border-slate-200 group-hover:scale-105 transition-transform">
-                  M
-                </div>
-              </button>
-            }
-          />
-          <DropdownMenuContent align="end" className="w-64 bg-white border-slate-200 shadow-2xl rounded-xl p-2 z-50">
-            <DropdownMenuLabel className="px-3 py-2">
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-bold leading-none text-slate-900">{user?.name}</p>
-                <p className="text-xs leading-none text-slate-500">{user?.email}</p>
               </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-slate-100 my-2" />
+              <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center text-slate-900 font-black text-2xl shadow-md border-2 border-slate-200 group-hover:scale-105 transition-transform">
+                M
+              </div>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-72 bg-white border-slate-200 shadow-2xl rounded-xl p-2 z-50">
+            {/* SECTION 2 — COMPANY INFO */}
+            <div className="px-3 py-3 bg-slate-50/50 rounded-lg mb-2">
+              <DropdownMenuLabel className="p-0">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-bold leading-none text-slate-900 uppercase tracking-tight">
+                    {companyProfile?.name || 'MNA REAL ESTATE'}
+                  </p>
+                  <p className="text-xs leading-normal text-slate-500 font-medium">
+                    {companyProfile?.description || 'Building quality homes since 2010'}
+                  </p>
+                </div>
+              </DropdownMenuLabel>
+            </div>
+
+            <DropdownMenuSeparator className="bg-slate-100 my-1" />
+            
             <DropdownMenuGroup>
+              <DropdownMenuLabel className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                User Options
+              </DropdownMenuLabel>
               <DropdownMenuItem 
                 className="flex items-center gap-2 px-3 py-2 cursor-pointer rounded-lg hover:bg-slate-50 focus:bg-slate-50 transition-colors"
-                onSelect={() => setIsSettingsOpen(true)}
-              >
-                <Settings className="h-4 w-4 text-slate-500" />
-                <span className="font-medium text-slate-700">Account Settings</span>
-              </DropdownMenuItem>
-              
-              <DropdownMenuItem 
-                className="flex items-center gap-2 px-3 py-2 cursor-pointer rounded-lg hover:bg-slate-50 focus:bg-slate-50 transition-colors"
-                onClick={() => navigate('/settings')}
+                onClick={() => navigate('/manage-profile')}
               >
                 <UserCircle className="h-4 w-4 text-slate-500" />
                 <span className="font-medium text-slate-700">Manage Profile</span>
               </DropdownMenuItem>
+
+              <DropdownMenuItem 
+                className="flex items-center gap-2 px-3 py-2 cursor-pointer rounded-lg hover:bg-slate-50 focus:bg-slate-50 transition-colors"
+                onClick={() => navigate('/settings')}
+              >
+                <Settings className="h-4 w-4 text-slate-500" />
+                <span className="font-medium text-slate-700">Settings</span>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem 
+                className="flex items-center gap-2 px-3 py-2 cursor-pointer rounded-lg hover:bg-slate-50 focus:bg-slate-50 transition-colors"
+                onClick={() => navigate('/switch-user')}
+              >
+                <ShieldCheck className="h-4 w-4 text-slate-500" />
+                <span className="font-medium text-slate-700">Switch User</span>
+              </DropdownMenuItem>
             </DropdownMenuGroup>
+
             <DropdownMenuSeparator className="bg-slate-100 my-2" />
+            
             <DropdownMenuItem 
               className="flex items-center gap-2 px-3 py-2 cursor-pointer rounded-lg text-destructive hover:bg-destructive/5 focus:bg-destructive/5 transition-colors"
               onClick={logout}

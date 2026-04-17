@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { 
   HardHat, 
   Users, 
@@ -53,7 +54,12 @@ export default function Dashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard Overview</h1>
+          <motion.h1 
+            whileHover={{ scale: 1.02, x: 5 }}
+            className="text-3xl font-bold tracking-tight animate-text-glow cursor-default"
+          >
+            Dashboard Overview
+          </motion.h1>
           <p className="text-muted-foreground">Welcome back! Here's what's happening at your sites today.</p>
         </div>
         <div className="flex gap-2">
@@ -74,7 +80,12 @@ export default function Dashboard() {
         >
           <CardContent className="p-6 flex flex-row items-center justify-between">
             <div className="space-y-1">
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Active Projects</p>
+              <motion.p 
+                whileHover={{ letterSpacing: "0.05em", color: "var(--primary)" }}
+                className="text-xs font-bold text-muted-foreground uppercase tracking-wider transition-all"
+              >
+                Active Projects
+              </motion.p>
               <p className="text-3xl font-bold">{activeProjectsCount}</p>
             </div>
             <div className="p-3 bg-blue-50 rounded-xl">
@@ -88,7 +99,12 @@ export default function Dashboard() {
         >
           <CardContent className="p-6 flex flex-row items-center justify-between">
             <div className="space-y-1">
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Laborers Active</p>
+              <motion.p 
+                whileHover={{ letterSpacing: "0.05em", color: "var(--primary)" }}
+                className="text-xs font-bold text-muted-foreground uppercase tracking-wider transition-all"
+              >
+                Laborers Active
+              </motion.p>
               <p className="text-3xl font-bold">{totalLabour}</p>
             </div>
             <div className="p-3 bg-green-50 rounded-xl">
